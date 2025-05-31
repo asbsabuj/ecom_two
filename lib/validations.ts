@@ -24,6 +24,18 @@ export const insertProductSchema = z.object({
 })
 
 export const signInFormSchema = z.object({
-  email: z.string().email("put correct email here"),
-  password: z.string().min(6, "password must be at least 6 characters long"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
 })
+
+export const signUpFormSchema = z
+  .object({
+    name: z.string().min(2, "Name must have at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters long"),
+    confirmPassword: z.string().min(6, "Confirm password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password does not match!",
+    path: ["confirmPassword"],
+  })

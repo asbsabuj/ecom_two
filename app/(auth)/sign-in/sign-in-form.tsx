@@ -9,8 +9,12 @@ import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { signInWithCredentials } from "@/lib/acions/user.action"
 import { useSearchParams } from "next/navigation"
+import { EyeOff, EyeIcon } from "lucide-react"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 const SignInForm = () => {
+  const [isVisible, setIsVisible] = useState(false)
   const [data, action] = useActionState(signInWithCredentials, {
     success: false,
     message: "",
@@ -18,6 +22,10 @@ const SignInForm = () => {
 
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/"
+
+  // const toggleVisibility = () => {
+  //   setIsVisible((prev) => !prev)
+  // }
 
   const SignInButton = () => {
     const { pending } = useFormStatus()
@@ -44,16 +52,28 @@ const SignInForm = () => {
             defaultValue={signInDefaultValues.email}
           />
         </div>
-        <div>
-          <Label htmlFor="password">password</Label>
+        <div className="relative">
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             name="password"
-            type="password"
             autoComplete="password"
             required
             defaultValue={signInDefaultValues.password}
+            type={isVisible ? "text" : "password"}
+            className={cn("pe-12")}
           />
+          <button
+            type="button"
+            className="absolute py-8 pr-5 inset-y-0 right-0 flex items-center px-2 cursor-pointer text-gray-600 hover:text-gray-800 focus:outline-none"
+            onClick={() => setIsVisible(!isVisible)}
+          >
+            {isVisible ? (
+              <EyeIcon className="stroke-muted-foreground size-5" />
+            ) : (
+              <EyeOff className="stroke-muted-foreground size-5" />
+            )}
+          </button>
         </div>
         <div>
           <SignInButton />
