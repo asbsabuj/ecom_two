@@ -18,7 +18,6 @@ export function formatNumberWithDecimal(num: number): string {
 }
 
 //format errors with correct messages
-//eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 export function formatError(error: any) {
   if (error.name === "ZodError") {
