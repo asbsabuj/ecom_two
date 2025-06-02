@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { signUpDefaultValues } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { useActionState } from "react"
+import { startTransition, useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { signUpUser } from "@/lib/acions/user.action"
 import { useSearchParams } from "next/navigation"
@@ -40,7 +40,12 @@ const SignUpForm = () => {
   }
 
   return (
-    <form action={action}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        startTransition(() => action(new FormData(e.currentTarget)))
+      }} /*action={action}*/
+    >
       <Input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="space-y-6">
         <div>

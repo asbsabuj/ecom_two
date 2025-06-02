@@ -72,37 +72,36 @@ export const config = {
             throw new Error("Unexpected error occurred during authorization")
           }
         }
-
-        //check if user exists and password matches
-        // if (user && user.password) {
-        //   const isMatch = compareSync(
-        //     credentials.password as string,
-        //     user.password
-        //   )
-
-        //   //if password matches
-        //   if (isMatch) {
-        //     return {
-        //       id: user.id,
-        //       name: user.name,
-        //       email: user.email,
-        //       role: user.role,
-        //     }
-        //   }
-        // }
-        // //password does not match, return null
-        // return null
       },
     }),
   ],
   callbacks: {
     async session({ session, user, trigger, token }: any) {
       session.user.id = token.sub
+      session.user.role = token.role
+      session.user.name = token.name
+
+      console.log(token)
 
       if (trigger === "update") {
         session.user.name = user.name
       }
       return session
+    },
+    async jwt({ user, trigger, session, token }: any) {
+      if (user) {
+        token.role = user.role
+
+        if (user.name === "NO_NAME") {
+          user.name = user.email!.split("@")[0]
+
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: user.name },
+          })
+        }
+      }
+      return token
     },
   },
 } satisfies NextAuthConfig
@@ -148,3 +147,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth(config)
 //             throw new Error("Unexpected error occurred during authorization")
 //           }
 //         }
+
+//check if user exists and password matches
+// if (user && user.password) {
+//   const isMatch = compareSync(
+//     credentials.password as string,
+//     user.password
+//   )
+
+//   //if password matches
+//   if (isMatch) {
+//     return {
+//       id: user.id,
+//       name: user.name,
+//       email: user.email,
+//       role: user.role,
+//     }
+//   }
+// }
+// //password does not match, return null
+// return null
