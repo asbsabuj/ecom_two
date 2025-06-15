@@ -5,6 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { compareSync } from "bcrypt-ts-edge"
 import type { NextAuthConfig } from "next-auth"
 import { CredentialsSignin } from "next-auth"
+import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
 
 export class UserDoesNotExistError extends CredentialsSignin {
   code = "AuthError"
@@ -81,8 +83,6 @@ export const config = {
       session.user.role = token.role
       session.user.name = token.name
 
-      console.log(token)
-
       if (trigger === "update") {
         session.user.name = user.name
       }
@@ -102,6 +102,23 @@ export const config = {
         }
       }
       return token
+    },
+    authorized({ request, auth }: any) {
+      if (!request.cookies.get("sessionCartId")) {
+        const sessionCartId = crypto.randomUUID()
+
+        const newRequestHeaders = new Headers(request.headers)
+
+        const response = NextResponse.next({
+          request: {
+            headers: newRequestHeaders,
+          },
+        })
+        response.cookies.set("sessionCartId", sessionCartId)
+        return response
+      } else {
+        return true
+      }
     },
   },
 } satisfies NextAuthConfig
