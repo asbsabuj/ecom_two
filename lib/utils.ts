@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { number } from "zod"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -35,5 +36,16 @@ export function formatError(error: any) {
     return typeof error.message === "string"
       ? error.message
       : JSON.stringify(error.message)
+  }
+}
+
+//round to 2 decimal points
+export function round2(value: number | string) {
+  if (typeof value === "number") {
+    return Math.round((value + Number.EPSILON) * 100) / 100
+  } else if (typeof value === "string") {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100
+  } else {
+    throw new Error("Value is not a number or a string !")
   }
 }

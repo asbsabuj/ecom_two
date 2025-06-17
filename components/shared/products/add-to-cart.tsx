@@ -21,7 +21,7 @@ const AddToCart = ({ item }: { item: CartItem }) => {
     }
     toast.success("Successful!", {
       className: "bg-primary text-white hover-bg-gray-800",
-      description: `${item.name} added to cart`,
+      description: res.message,
       action: {
         label: "Go to cart",
         onClick: () => router.push("/cart"),
