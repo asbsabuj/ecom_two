@@ -7,7 +7,6 @@ import { auth } from "@/auth"
 import { prisma } from "@/db/prisma"
 import { cartSchema, insertCartSchema } from "../validations"
 import { revalidatePath } from "next/cache"
-import { Prisma } from "@prisma/client"
 
 const calcPrice = (items: CartItem[]) => {
   const itemsPrice = round2(
@@ -105,6 +104,64 @@ export async function addItemsToCart(data: CartItem) {
           existingItems ? "updated in" : "added to"
         } cart`,
       }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
+  }
+}
+
+export async function removeItemFromCart(productId: string) {
+  try {
+    //check user session cookies
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value
+    if (!sessionCartId) throw new Error("Cart session not found!")
+
+    //get product
+    const product = await prisma.product.findFirst({
+      where: { id: productId },
+    })
+    if (!product) throw new Error("Product not found!")
+
+    //get user cart
+    const cart = await getMyCart()
+    if (!cart) throw new Error("Cart not found!")
+
+    //check item
+    const exist = (cart.items as CartItem[]).find(
+      (x) => x.productId === productId
+    )
+    if (!exist) throw new Error("Item not found")
+
+    //removing from cart
+
+    //if qty is 1, then removing from cart
+    if (exist.qty === 1) {
+      cart.items = (cart.items as CartItem[]).filter(
+        (x) => x.productId !== exist.productId
+      )
+    } else {
+      ;(cart.items as CartItem[]).find(
+        (x) => x.productId === exist.productId
+      )!.qty = exist.qty - 1
+    }
+
+    //update database
+    await prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        items: cart.items,
+        ...calcPrice(cart.items as CartItem[]),
+      },
+    })
+
+    revalidatePath(`/product/${product.slug}`)
+
+    return {
+      success: true,
+      message: `${product.name} is removed from cart!`,
     }
   } catch (error) {
     return {
