@@ -90,6 +90,7 @@ export const config = {
     },
     async jwt({ user, trigger, session, token }: any) {
       if (user) {
+        token.id = user.id
         token.role = user.role
 
         if (user.name === "NO_NAME") {
@@ -100,10 +101,49 @@ export const config = {
             data: { name: user.name },
           })
         }
+
+        const cookiesObject = await cookies()
+        const sessionCartId = cookiesObject.get("sessionCartId")?.value
+
+        if (sessionCartId) {
+          const sessionCart = await prisma.cart.findFirst({
+            where: { sessionCartId },
+          })
+
+          if (sessionCart) {
+            //delete current user cart
+            await prisma.cart.deleteMany({
+              where: { userId: user.id },
+            })
+
+            //assign new cart
+            await prisma.cart.update({
+              where: { id: sessionCart.id },
+              data: { userId: user.id },
+            })
+          }
+        }
       }
       return token
     },
     authorized({ request, auth }: any) {
+      //array of regex patterns of paths we want to protect
+      const protectedPaths = [
+        /\/shipping-address/,
+        /\/place-order/,
+        /\/payment-method/,
+        /\/profile/,
+        /\/user\/(.*)/,
+        /\/order\/(.*)/,
+        /\/admin/,
+      ]
+
+      //get pathname from the req url object
+      const { pathname } = request.nextUrl
+
+      //check if user is autheticated and trying to access a protected path
+      if (!auth && protectedPaths.some((p) => p.test(pathname))) return false
+
       if (!request.cookies.get("sessionCartId")) {
         const sessionCartId = crypto.randomUUID()
 
@@ -124,63 +164,3 @@ export const config = {
 } satisfies NextAuthConfig
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)
-
-// export class UserDoesNotExistError extends CredentialsSignin {
-//   code = "AuthError"
-//   message = "User does not exist - Please check credentials"
-// }
-
-// export class PasswordInccorectError extends CredentialsSignin {
-//   code = "AuthError"
-//   message = "Password is incorrect - Please check credentials"
-// }
-
-// try {
-//           if (!user) {
-//             throw new UserDoesNotExistError()
-//           }
-//           if (user && user.password) {
-//             const isMatch = compareSync(
-//               credentials.password as string,
-//               user.password
-//             )
-//             if (!isMatch) {
-//               throw new PasswordInccorectError()
-//             }
-//           }
-//           return {
-//             id: user.id,
-//             name: user.name,
-//             email: user.email,
-//             role: user.role,
-//           }
-//         } catch (error) {
-//           if (
-//             error instanceof UserDoesNotExistError ||
-//             error instanceof PasswordInccorectError
-//           ) {
-//             throw error
-//           } else {
-//             throw new Error("Unexpected error occurred during authorization")
-//           }
-//         }
-
-//check if user exists and password matches
-// if (user && user.password) {
-//   const isMatch = compareSync(
-//     credentials.password as string,
-//     user.password
-//   )
-
-//   //if password matches
-//   if (isMatch) {
-//     return {
-//       id: user.id,
-//       name: user.name,
-//       email: user.email,
-//       role: user.role,
-//     }
-//   }
-// }
-// //password does not match, return null
-// return null

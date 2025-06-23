@@ -52,36 +52,51 @@ const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
     })
   }
 
+  const goToCart = () => {
+    router.push("/cart")
+  }
+
   const existingItem =
     cart && cart.items.find((x) => x.productId === item.productId)
 
-  return existingItem ? (
-    <div>
-      <Button type="button" variant="outline" onClick={handleRemoveFromCart}>
-        {isPending ? (
-          <Loader className="h-4 w-4 animate-spin " />
-        ) : (
-          <Minus className="h-4 w-4" />
-        )}
-      </Button>
-      <span className="px-2">{existingItem.qty}</span>
-      <Button type="button" variant="outline" onClick={handleAddToCart}>
-        {isPending ? (
-          <Loader className="h-4 w-4 animate-spin" />
-        ) : (
-          <Plus className="h-4 w-4" />
-        )}
-      </Button>
-    </div>
-  ) : (
-    <Button className="w-full" type="button" onClick={handleAddToCart}>
-      {isPending ? (
-        <Loader className="h-4 w-4 animate-spin" />
+  return (
+    <>
+      {existingItem ? (
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleRemoveFromCart}
+          >
+            {isPending ? (
+              <Loader className="h-4 w-4 animate-spin " />
+            ) : (
+              <Minus className="h-4 w-4" />
+            )}
+          </Button>
+          <span className="px-2">{existingItem.qty}</span>
+          <Button type="button" variant="outline" onClick={handleAddToCart}>
+            {isPending ? (
+              <Loader className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       ) : (
-        <Plus className="h-4 w-4" />
-      )}{" "}
-      Add To Cart
-    </Button>
+        <Button className="w-full" type="button" onClick={handleAddToCart}>
+          {isPending ? (
+            <Loader className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}{" "}
+          Add To Cart
+        </Button>
+      )}
+      {/* <Button className="w-full flex" type="button" onClick={goToCart}>
+        Go to cart
+      </Button> */}
+    </>
   )
 }
 

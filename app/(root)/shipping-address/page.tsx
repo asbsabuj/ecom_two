@@ -5,6 +5,8 @@ import { ShippingAddress } from "@/types"
 import { getUserById } from "@/lib/acions/user.action"
 import { redirect } from "next/navigation"
 import ShippingAddressForm from "./shipping-address-form"
+import CheckoutSteps from "@/components/shared/checkout-steps"
+import { toast } from "sonner"
 
 export const metadata: Metadata = {
   title: "Shipping-Address",
@@ -17,12 +19,13 @@ const ShippingAddressPage = async () => {
   const session = await auth()
   const userId = session?.user?.id
 
-  if (!userId) throw new Error(" No user ID!")
+  if (!userId) throw new Error("User not found")
 
   const user = await getUserById(userId)
 
   return (
     <>
+      <CheckoutSteps current={1} />
       <ShippingAddressForm address={user.address as ShippingAddress} />
     </>
   )
