@@ -28,3 +28,11 @@ export const shippingAddressDefaultValues = {
   lat: "",
   lon: "",
 }
+
+//payment method default values
+
+export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
+  ? process.env.PAYMENT_METHODS.split(", ")
+  : ["paypal", "stripe", "cashOnDelivery"]
+export const DEFAULT_PAYMENT_METHODS =
+  process.env.DEFAULT_PAYMENT_METHODS || "paypal"
