@@ -4,7 +4,7 @@ import { Cart } from "@/types"
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 import { toast } from "sonner"
-import { ArrowRight, ArrowLeft, Plus, Minus, Loader } from "lucide-react"
+import { ArrowRight, Plus, Minus, Loader } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { addItemsToCart, removeItemFromCart } from "@/lib/acions/cart.action"
-import { formatCurrency } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 
 const CartTable = ({ cart }: { cart?: Cart }) => {

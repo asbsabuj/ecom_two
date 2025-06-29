@@ -1,14 +1,12 @@
 import { auth } from "@/auth"
-import { Metadata } from "next"
 import { getMyCart } from "@/lib/acions/cart.action"
 import { ShippingAddress } from "@/types"
 import { getUserById } from "@/lib/acions/user.action"
 import { redirect } from "next/navigation"
 import ShippingAddressForm from "./shipping-address-form"
 import CheckoutSteps from "@/components/shared/checkout-steps"
-import { toast } from "sonner"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Shipping-Address",
 }
 

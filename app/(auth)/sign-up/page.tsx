@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import {
   Card,
   CardHeader,
@@ -13,7 +12,7 @@ import SignUpForm from "./sign-up-form"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Sign-up",
 }
 
