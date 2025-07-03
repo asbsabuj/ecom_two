@@ -1,24 +1,14 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/db/prisma"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { compareSync } from "bcrypt-ts-edge"
-import type { NextAuthConfig } from "next-auth"
-// import { CredentialsSignin } from "next-auth"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+// import CredentialsProvider from "next-auth/providers/credentials"
+// import { compareSync } from "bcrypt-ts-edge"
+// import type { NextAuthConfig } from "next-auth"
+// import { cookies } from "next/headers"
+// import { NextResponse } from "next/server"
+import authConfig from "./auth.config"
 
-// export class UserDoesNotExistError extends CredentialsSignin {
-//   code = "AuthError"
-//   message = "User does not exist - Please check credentials"
-// }
-
-// export class PasswordInccorectError extends CredentialsSignin {
-//   code = "AuthError"
-//   message = "Password is incorrect - Please check credentials"
-// }
-
-export const config = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/sign-in",
     error: "/sign-in",
@@ -28,132 +18,143 @@ export const config = {
     maxAge: 30 * 24 * 60 * 60,
   },
   adapter: PrismaAdapter(prisma),
-  providers: [
-    CredentialsProvider({
-      credentials: {
-        email: { type: "email" },
-        password: { type: "password" },
-      },
+  ...authConfig,
+})
 
-      async authorize(credentials) {
-        if (credentials == null) return null
+// export const config = {
+//   pages: {
+//     signIn: "/sign-in",
+//     error: "/sign-in",
+//   },
+//   session: {
+//     strategy: "jwt",
+//     maxAge: 30 * 24 * 60 * 60,
+//   },
+//   adapter: PrismaAdapter(prisma),
+//   providers: [
+//     CredentialsProvider({
+//       credentials: {
+//         email: { type: "email" },
+//         password: { type: "password" },
+//       },
 
-        // check if user exists in database
-        const user = await prisma.user.findFirst({
-          where: {
-            email: credentials.email as string,
-          },
-        })
+//       async authorize(credentials) {
+//         if (credentials == null) return null
 
-        //check if user exists and password matches
-        if (user && user.password) {
-          const isMatch = compareSync(
-            credentials.password as string,
-            user.password
-          )
+//         // check if user exists in database
+//         const user = await prisma.user.findFirst({
+//           where: {
+//             email: credentials.email as string,
+//           },
+//         })
 
-          //If password is correct, return user
-          if (isMatch) {
-            return {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-            }
-          }
-        }
-        // if user does not exist or password doesnot match
-        return null
-      },
-    }),
-  ],
-  callbacks: {
-    async session({ session, user, trigger, token }: any) {
-      session.user.id = token.sub
-      session.user.role = token.role
-      session.user.name = token.name
+//         //check if user exists and password matches
+//         if (user && user.password) {
+//           const isMatch = compareSync(
+//             credentials.password as string,
+//             user.password
+//           )
 
-      if (trigger === "update") {
-        session.user.name = user.name
-      }
-      return session
-    },
-    async jwt({ user, trigger, session, token }: any) {
-      if (user) {
-        token.id = user.id
-        token.role = user.role
+//           //If password is correct, return user
+//           if (isMatch) {
+//             return {
+//               id: user.id,
+//               name: user.name,
+//               email: user.email,
+//               role: user.role,
+//             }
+//           }
+//         }
+//         // if user does not exist or password doesnot match
+//         return null
+//       },
+//     }),
+//   ],
+//   callbacks: {
+//     async session({ session, user, trigger, token }: any) {
+//       session.user.id = token.sub
+//       session.user.role = token.role
+//       session.user.name = token.name
 
-        if (user.name === "NO_NAME") {
-          user.name = user.email!.split("@")[0]
+//       if (trigger === "update") {
+//         session.user.name = user.name
+//       }
+//       return session
+//     },
+//     async jwt({ user, trigger, session, token }: any) {
+//       if (user) {
+//         token.id = user.id
+//         token.role = user.role
 
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { name: user.name },
-          })
-        }
+//         if (user.name === "NO_NAME") {
+//           user.name = user.email!.split("@")[0]
 
-        const cookiesObject = await cookies()
-        const sessionCartId = cookiesObject.get("sessionCartId")?.value
+//           await prisma.user.update({
+//             where: { id: user.id },
+//             data: { name: user.name },
+//           })
+//         }
 
-        if (sessionCartId) {
-          const sessionCart = await prisma.cart.findFirst({
-            where: { sessionCartId },
-          })
+//         const cookiesObject = await cookies()
+//         const sessionCartId = cookiesObject.get("sessionCartId")?.value
 
-          if (sessionCart) {
-            //delete current user cart
-            await prisma.cart.deleteMany({
-              where: { userId: user.id },
-            })
+//         if (sessionCartId) {
+//           const sessionCart = await prisma.cart.findFirst({
+//             where: { sessionCartId },
+//           })
 
-            //assign new cart
-            await prisma.cart.update({
-              where: { id: sessionCart.id },
-              data: { userId: user.id },
-            })
-          }
-        }
-      }
-      return token
-    },
-    authorized({ request, auth }: any) {
-      //array of regex patterns of paths we want to protect
-      const protectedPaths = [
-        /\/shipping-address/,
-        /\/place-order/,
-        /\/payment-method/,
-        /\/profile/,
-        /\/user\/(.*)/,
-        /\/order\/(.*)/,
-        /\/admin/,
-      ]
+//           if (sessionCart) {
+//             //delete current user cart
+//             await prisma.cart.deleteMany({
+//               where: { userId: user.id },
+//             })
 
-      //get pathname from the req url object
-      const { pathname } = request.nextUrl
+//             //assign new cart
+//             await prisma.cart.update({
+//               where: { id: sessionCart.id },
+//               data: { userId: user.id },
+//             })
+//           }
+//         }
+//       }
+//       return token
+//     },
+//     authorized({ request, auth }: any) {
+//       //array of regex patterns of paths we want to protect
+//       const protectedPaths = [
+//         /\/shipping-address/,
+//         /\/place-order/,
+//         /\/payment-method/,
+//         /\/profile/,
+//         /\/user\/(.*)/,
+//         /\/order\/(.*)/,
+//         /\/admin/,
+//       ]
 
-      //check if user is autheticated and trying to access a protected path
-      if (!auth && protectedPaths.some((p) => p.test(pathname))) return false
+//       //get pathname from the req url object
+//       const { pathname } = request.nextUrl
 
-      if (!request.cookies.get("sessionCartId")) {
-        const sessionCartId = crypto.randomUUID()
+//       //check if user is autheticated and trying to access a protected path
+//       if (!auth && protectedPaths.some((p) => p.test(pathname))) return false
 
-        const newRequestHeaders = new Headers(request.headers)
+//       if (!request.cookies.get("sessionCartId")) {
+//         const sessionCartId = crypto.randomUUID()
 
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
-        })
-        response.cookies.set("sessionCartId", sessionCartId)
-        return response
-      } else {
-        return true
-      }
-    },
-  },
-} satisfies NextAuthConfig
+//         const newRequestHeaders = new Headers(request.headers)
 
-export const { handlers, auth, signIn, signOut } = NextAuth(config)
+//         const response = NextResponse.next({
+//           request: {
+//             headers: newRequestHeaders,
+//           },
+//         })
+//         response.cookies.set("sessionCartId", sessionCartId)
+//         return response
+//       } else {
+//         return true
+//       }
+//     },
+//   },
+// } satisfies NextAuthConfig
 
 // try {
 //           if (!user) {
