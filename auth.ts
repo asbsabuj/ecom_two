@@ -3,26 +3,14 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/db/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { compareSync } from "bcrypt-ts-edge"
-import type { NextAuthConfig } from "next-auth"
+//import type { NextAuthConfig } from "next-auth"
 // import { CredentialsSignin } from "next-auth"
 import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { authConfig } from "./auth.config"
+//import { NextResponse } from "next/server"
 
-// export class UserDoesNotExistError extends CredentialsSignin {
-//   code = "AuthError"
-//   message = "User does not exist - Please check credentials"
-// }
-
-// export class PasswordInccorectError extends CredentialsSignin {
-//   code = "AuthError"
-//   message = "Password is incorrect - Please check credentials"
-// }
-
-export const config = {
-  pages: {
-    signIn: "/sign-in",
-    error: "/sign-in",
-  },
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
@@ -116,44 +104,18 @@ export const config = {
       }
       return token
     },
-    authorized({ request, auth }: any) {
-      //array of regex patterns of paths we want to protect
-      const protectedPaths = [
-        /\/shipping-address/,
-        /\/place-order/,
-        /\/payment-method/,
-        /\/profile/,
-        /\/user\/(.*)/,
-        /\/order\/(.*)/,
-        /\/admin/,
-      ]
-
-      //get pathname from the req url object
-      const { pathname } = request.nextUrl
-
-      //check if user is autheticated and trying to access a protected path
-      if (!auth && protectedPaths.some((p) => p.test(pathname))) return false
-
-      if (!request.cookies.get("sessionCartId")) {
-        const sessionCartId = crypto.randomUUID()
-
-        const newRequestHeaders = new Headers(request.headers)
-
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
-        })
-        response.cookies.set("sessionCartId", sessionCartId)
-        return response
-      } else {
-        return true
-      }
-    },
   },
-} satisfies NextAuthConfig
+})
 
-export const { handlers, auth, signIn, signOut } = NextAuth(config)
+// export class UserDoesNotExistError extends CredentialsSignin {
+//   code = "AuthError"
+//   message = "User does not exist - Please check credentials"
+// }
+
+// export class PasswordInccorectError extends CredentialsSignin {
+//   code = "AuthError"
+//   message = "Password is incorrect - Please check credentials"
+// }
 
 // try {
 //           if (!user) {
