@@ -6,7 +6,7 @@ import { compareSync } from "bcrypt-ts-edge"
 //import type { NextAuthConfig } from "next-auth"
 // import { CredentialsSignin } from "next-auth"
 import { cookies } from "next/headers"
-import { authConfig } from "./auth.config"
+import { authConfig } from "@/auth.config"
 //import { NextResponse } from "next/server"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
