@@ -83,7 +83,7 @@ const SignInForm = () => {
         )}
         <div className="text-sm text-center text-muted-foreground">
           Don't have an account?{" "}
-          <Link href="/sign-up" target="_self" className="link">
+          <Link href="/sign-up" target="_self" className="link font-bold">
             Sign Up
           </Link>
         </div>
@@ -93,15 +93,3 @@ const SignInForm = () => {
 }
 
 export default SignInForm
-
-//try {
-//   const res = await signIn("credentials", {
-//     redirect: true,
-//     redirectTo: "/",
-//     email,
-//     password,
-//   })
-//   console.log(res)
-// } catch (error) {
-//   console.error("Sign-in failed", error)
-// }
