@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import { getOrderById } from "@/lib/acions/order.action"
 import { notFound } from "next/navigation"
 
-export const metadat: Metadata = {
+export const metadata: Metadata = {
   title: "Order Details",
 }
 
