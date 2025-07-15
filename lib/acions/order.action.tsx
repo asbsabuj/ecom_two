@@ -3,11 +3,12 @@ import { auth } from "@/auth"
 import { getMyCart } from "./cart.action"
 import { getUserById } from "./user.action"
 import { isRedirectError } from "next/dist/client/components/redirect-error"
-import { CartItem } from "@/types"
+import { CartItem, PaymentResult } from "@/types"
 import { prisma } from "@/db/prisma"
 import { formatError } from "../utils"
 import { insertOrderSchema } from "../validations"
 import { convertToPlainObject } from "../utils"
+import { error } from "console"
 
 //create order and create order items
 export async function CreateOrder() {
@@ -105,4 +106,53 @@ export async function getOrderById(orderId: string) {
     },
   })
   return convertToPlainObject(data)
+}
+
+//update order ton paid
+export async function updateOrderToPaid({
+  orderId,
+  paymentResult,
+}: {
+  orderId: string
+  paymentResult?: PaymentResult
+}) {
+  //fetch order from database
+  const order = await prisma.order.findFirst({
+    where: { id: orderId },
+    include: {
+      orderitems: true,
+    },
+  })
+
+  if (!order) throw new Error("Order not found!")
+  if (order.isPaid) throw new Error("Already paid!")
+
+  //transaction to update order and product stock
+  await prisma.$transaction(async (tx) => {
+    //iterate over product qty to update stock
+    for (const item of order.orderitems) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock: { increment: -item.qty } },
+      })
+    }
+    //set the order to be paid
+    await tx.order.update({
+      where: { id: orderId },
+      data: {
+        isPaid: true,
+        paidAt: new Date(),
+        paymentResult,
+      },
+    })
+  })
+  //get updated order after transaction
+  const updatedOrder = await prisma.order.findFirst({
+    where: { id: orderId },
+    include: {
+      orderitems: true,
+      user: { select: { name: true, email: true } },
+    },
+  })
+  if (!updatedOrder) throw new Error("Order not found!")
 }
