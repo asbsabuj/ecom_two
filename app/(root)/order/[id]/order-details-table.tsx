@@ -14,8 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import StripePayment from "./stripe-payment"
 
-const OrderDetailsTable = ({ order }: { order: Order }) => {
+const OrderDetailsTable = ({
+  order,
+  stripeClientSecret,
+}: {
+  order: Order
+  stripeClientSecret: string | null
+}) => {
   const {
     orderitems,
     itemsPrice,
@@ -124,6 +131,14 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
                 <div>Total</div>
                 <div>{formatCurrency(totalPrice)}</div>
               </div>
+              {/* stripe payment method */}
+              {!isPaid && paymentMethod === "Stripe" && stripeClientSecret && (
+                <StripePayment
+                  priceInCents={Number(order.totalPrice) * 100}
+                  orderId={order.id}
+                  clientSecret={stripeClientSecret}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
