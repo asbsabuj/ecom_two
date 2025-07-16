@@ -8,7 +8,6 @@ import { prisma } from "@/db/prisma"
 import { formatError } from "../utils"
 import { insertOrderSchema } from "../validations"
 import { convertToPlainObject } from "../utils"
-import { error } from "console"
 
 //create order and create order items
 export async function CreateOrder() {
@@ -108,7 +107,7 @@ export async function getOrderById(orderId: string) {
   return convertToPlainObject(data)
 }
 
-//update order ton paid
+//update order to  paid
 export async function updateOrderToPaid({
   orderId,
   paymentResult,

@@ -4,7 +4,7 @@ import Stripe from "stripe"
 
 export async function POST(req: NextRequest) {
   //build the webhook event
-  const event = await Stripe.webhooks.constructEvent(
+  const event = Stripe.webhooks.constructEvent(
     await req.text(),
     req.headers.get("stripe-signature") as string,
     process.env.STRIPE_WEBHOOKS_SECRET as string

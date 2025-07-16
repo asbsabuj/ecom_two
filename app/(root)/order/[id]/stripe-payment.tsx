@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
 import { formatCurrency } from "@/lib/utils"
 import { SERVER_URL } from "@/lib/constants"
-import { error } from "console"
 
 const StripePayment = ({
   priceInCents,
