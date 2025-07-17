@@ -36,3 +36,5 @@ export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
   : ["PayPal", "Stripe", "CashOnDelivery"]
 export const DEFAULT_PAYMENT_METHODS =
   process.env.DEFAULT_PAYMENT_METHODS || "PayPal"
+
+export const PAGE_LIMIT = Number(process.env.PAGE_LIMIT) || 2

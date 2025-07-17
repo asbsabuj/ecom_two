@@ -8,6 +8,7 @@ import { prisma } from "@/db/prisma"
 import { formatError } from "../utils"
 import { insertOrderSchema } from "../validations"
 import { convertToPlainObject } from "../utils"
+import { PAGE_LIMIT } from "../constants"
 
 //create order and create order items
 export async function CreateOrder() {
@@ -154,4 +155,35 @@ export async function updateOrderToPaid({
     },
   })
   if (!updatedOrder) throw new Error("Order not found!")
+}
+
+//pagination action
+export async function getMyOrders({
+  limit = PAGE_LIMIT,
+  page,
+}: {
+  limit?: number
+  page: number
+}) {
+  const session = await auth()
+
+  if (!session) throw new Error("User unauthorized")
+
+  //find the orders of a user
+  const data = await prisma.order.findMany({
+    where: { userId: session?.user?.id! },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: (page - 1) * limit,
+  })
+
+  //get the data counter
+  const dataCounter = await prisma.order.count({
+    where: { userId: session?.user?.id! },
+  })
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCounter / limit),
+  }
 }
