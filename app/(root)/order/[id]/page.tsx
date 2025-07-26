@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import OrderDetailsTable from "./order-details-table"
 import { ShippingAddress } from "@/types"
 import Stripe from "stripe"
+import { auth } from "@/auth"
 
 export const metadata: Metadata = {
   title: "Order Details",
@@ -15,6 +16,8 @@ const OrderDetailsPage = async (props: {
   }>
 }) => {
   const { id } = await props.params
+
+  const session = await auth()
 
   const order = await getOrderById(id)
 
@@ -42,6 +45,7 @@ const OrderDetailsPage = async (props: {
         ...order,
         shippingAddress: order.shippingAddress as ShippingAddress,
       }}
+      isAdmin={session?.user?.role === "admin" || false}
       stripeClientSecret={client_secret}
     />
   )

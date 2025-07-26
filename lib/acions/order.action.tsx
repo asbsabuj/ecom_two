@@ -10,6 +10,7 @@ import { insertOrderSchema } from "../validations"
 import { convertToPlainObject } from "../utils"
 import { PAGE_LIMIT } from "../constants"
 import { Prisma } from "../generated/prisma"
+import { revalidatePath } from "next/cache"
 
 //create order and create order items
 export async function CreateOrder() {
@@ -237,5 +238,101 @@ export async function getOrderSummary() {
     totalSales,
     salesData,
     latestSales,
+  }
+}
+// get all orders
+export async function getAllOrders({
+  limit = PAGE_LIMIT,
+  page,
+}: {
+  limit?: number
+  page: number
+}) {
+  const data = await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: (page - 1) * limit,
+    include: {
+      user: { select: { name: true } },
+    },
+  })
+
+  //get the data counter
+  const dataCounter = await prisma.order.count()
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCounter / limit),
+  }
+}
+
+//delete an order as admin
+export async function deleteOrder(id: string) {
+  try {
+    await prisma.order.delete({
+      where: { id },
+    })
+    revalidatePath("/admin/orders")
+
+    return {
+      success: true,
+      message: "Order deleted successfully",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
+  }
+}
+
+//update COD order to paid
+export async function updateOrderToPaidCOD(orderId: string) {
+  try {
+    await updateOrderToPaid({ orderId })
+
+    revalidatePath(`/order/${orderId}`)
+
+    return {
+      success: true,
+      message: "Order is marked paid.",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
+  }
+}
+
+//update COD order to delivered
+export async function updateOrderDelivered(orderId: string) {
+  try {
+    const order = await prisma.order.findFirst({
+      where: { id: orderId },
+    })
+
+    if (!order) throw new Error("Order not found!")
+    if (!order.isPaid) throw new Error("Order is not paid yet.")
+
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        isDelivered: true,
+        deliveredAt: new Date(),
+      },
+    })
+
+    revalidatePath(`/order/${orderId}`)
+
+    return {
+      success: true,
+      message: "Order is marked delivered",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
   }
 }

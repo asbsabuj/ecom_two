@@ -13,6 +13,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { BadgeDollarSign, CreditCard, User, Barcode } from "lucide-react"
 import { formatNumber, formatCurrency, formatDateTime } from "@/lib/utils"
+import { requireAdmin } from "@/lib/auth-guard"
 import Chart from "./chart"
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
 }
 
 const AdminOverviewPage = async () => {
+  await requireAdmin()
   const session = await auth()
 
   if (session?.user?.role !== "admin") throw new Error("User is not authorized")

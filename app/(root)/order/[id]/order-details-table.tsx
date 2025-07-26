@@ -14,14 +14,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { useTransition } from "react"
 import StripePayment from "./stripe-payment"
+import {
+  updateOrderToPaidCOD,
+  updateOrderDelivered,
+} from "@/lib/acions/order.action"
 
 const OrderDetailsTable = ({
   order,
   stripeClientSecret,
+  isAdmin,
 }: {
   order: Order
   stripeClientSecret: string | null
+  isAdmin: boolean
 }) => {
   const {
     orderitems,
@@ -36,6 +45,64 @@ const OrderDetailsTable = ({
     isPaid,
     isDelivered,
   } = order
+
+  //mark paid button for cod
+  const MarkAsPaidButton = () => {
+    const [isPending, startTransition] = useTransition()
+
+    return (
+      <Button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateOrderToPaidCOD(order.id)
+
+            if (!res.success) {
+              toast.error("Something went wrong", {
+                description: res.message,
+              })
+            } else {
+              toast.success("Success!", {
+                description: res.message,
+              })
+            }
+          })
+        }
+      >
+        {isPending ? "Processing..." : "Marked As Paid"}
+      </Button>
+    )
+  }
+
+  //mark delivered button for cod
+  const MarkAsDeliveredButton = () => {
+    const [isPending, startTransition] = useTransition()
+
+    return (
+      <Button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateOrderDelivered(order.id)
+
+            if (!res.success) {
+              toast.error("Something went wrong", {
+                description: res.message,
+              })
+            } else {
+              toast.success("Success!", {
+                description: res.message,
+              })
+            }
+          })
+        }
+      >
+        {isPending ? "Processing..." : "Marked As Delivered"}
+      </Button>
+    )
+  }
 
   return (
     <>
@@ -139,6 +206,14 @@ const OrderDetailsTable = ({
                   clientSecret={stripeClientSecret}
                 />
               )}
+
+              {/* cash on delivery payment method */}
+
+              {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
+                <MarkAsPaidButton />
+              )}
+
+              {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
             </CardContent>
           </Card>
         </div>
