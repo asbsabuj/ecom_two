@@ -1,9 +1,15 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  // outputFileTracingExcludes: {
-  //   "/": ["./lib/generated/**/*"],
-  // },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+        port: "",
+      },
+    ],
+  },
 }
 
 export default nextConfig

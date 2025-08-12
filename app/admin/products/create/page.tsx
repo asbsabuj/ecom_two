@@ -1,0 +1,21 @@
+import { Metadata } from "next"
+import { requireAdmin } from "@/lib/auth-guard"
+import ProductForm from "@/components/admin/product-form"
+
+export const metadata: Metadata = {
+  title: "Create Products",
+}
+
+const AdminProductCreatePage = () => {
+  requireAdmin()
+  return (
+    <>
+      <h1 className="h2-bold">Create Product</h1>
+      <div className="my-8">
+        <ProductForm type="Create" />
+      </div>
+    </>
+  )
+}
+
+export default AdminProductCreatePage

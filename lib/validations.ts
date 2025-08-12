@@ -8,7 +8,7 @@ const currency = z
     (value) => /^\d+(\.\d{2})?$/.test(formatNumberWithDecimal(Number(value))),
     "Price must have exactly two decimal places"
   )
-
+//schema for inserting a new product
 export const insertProductSchema = z.object({
   name: z.string().min(3, "Name must have at least 3 characters "),
   slug: z.string().min(3, "Slug must have at least 3 characters "),
@@ -19,9 +19,14 @@ export const insertProductSchema = z.object({
     .min(3, "Description must have at least 3 characters "),
   stock: z.coerce.number(),
   image: z.array(z.string()).min(1, "Product must have at least 1 image"),
-  isFeatured: z.boolean(),
-  banner: z.string().nullable(),
+  // isFeatured: z.boolean(),
+  // banner: z.string().nullable(),
   price: currency,
+})
+
+//schema for updating a product
+export const updateProductSchema = insertProductSchema.extend({
+  id: z.string().min(1, "ID is required"),
 })
 
 export const signInFormSchema = z.object({

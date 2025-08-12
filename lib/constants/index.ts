@@ -30,7 +30,6 @@ export const shippingAddressDefaultValues = {
 }
 
 //payment method default values
-
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
   ? process.env.PAYMENT_METHODS.split(", ")
   : ["PayPal", "Stripe", "CashOnDelivery"]
@@ -38,3 +37,19 @@ export const DEFAULT_PAYMENT_METHODS =
   process.env.DEFAULT_PAYMENT_METHODS || "PayPal"
 
 export const PAGE_LIMIT = Number(process.env.PAGE_LIMIT) || 12
+
+//updating product default values
+export const productDefaultValues = {
+  name: "",
+  slug: "",
+  category: "",
+  brand: "",
+  description: "",
+  stock: 0,
+  image: [],
+  isFeatured: false,
+  price: "0",
+  banner: null,
+  rating: "0",
+  numReviews: "0",
+}
