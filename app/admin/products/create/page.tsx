@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: "Create Products",
 }
 
-const AdminProductCreatePage = () => {
-  requireAdmin()
+const AdminProductCreatePage = async () => {
+  await requireAdmin()
   return (
     <>
       <h1 className="h2-bold">Create Product</h1>

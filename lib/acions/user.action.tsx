@@ -6,7 +6,7 @@ import {
   signInFormSchema,
   signUpFormSchema,
   paymentMethodsSchema,
-  updateUserFromProfileSchema,
+  updateUserFromAdminSchema,
 } from "../validations"
 import { prisma } from "@/db/prisma"
 import { isRedirectError } from "next/dist/client/components/redirect-error"
@@ -15,6 +15,9 @@ import { formatError } from "../utils"
 import { ShippingAddress } from "@/types"
 import { auth } from "@/auth"
 import { z } from "zod"
+import { PAGE_LIMIT } from "../constants"
+import { revalidatePath } from "next/cache"
+import { getMyCart } from "./cart.action"
 
 export async function signInWithCredentials(
   prevState: unknown,
@@ -37,7 +40,11 @@ export async function signInWithCredentials(
   }
 }
 
+//signing out and clearing cart
 export async function signOutUser() {
+  // get current users cart and delete it so it does not persist to next user
+  const currentCart = await getMyCart()
+  await prisma.cart.delete({ where: { id: currentCart?.id } })
   await signOut()
 }
 
@@ -168,5 +175,75 @@ export async function updateUserFromProfile(user: {
     }
   } catch (error) {
     return { success: false, message: formatError(error) }
+  }
+}
+
+// get all users
+export async function getAllUsers({
+  limit = PAGE_LIMIT,
+  page,
+}: {
+  limit?: number
+  page: number
+}) {
+  const data = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: (page - 1) * limit,
+  })
+
+  //get the data counter
+  const dataCounter = await prisma.user.count()
+
+  return {
+    data,
+    totalPages: Math.ceil(dataCounter / limit),
+  }
+}
+
+// delete user
+export async function deleteUser(id: string) {
+  try {
+    await prisma.user.delete({
+      where: { id },
+    })
+    revalidatePath("/admin/users")
+
+    return {
+      success: true,
+      message: "User deleted successfully.",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
+  }
+}
+
+// update user from admin
+export async function updateUserFromAdmin(
+  user: z.infer<typeof updateUserFromAdminSchema>
+) {
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name: user.name,
+        role: user.role,
+      },
+    })
+
+    revalidatePath("/admin/users")
+
+    return {
+      success: true,
+      message: "User updated successfully.",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
   }
 }
