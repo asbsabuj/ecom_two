@@ -23,7 +23,7 @@ import { Input } from "../ui/input"
 import { Card, CardContent } from "../ui/card"
 import Image from "next/image"
 import { UploadButton } from "@/lib/uploadthing"
-import { error } from "console"
+import { Checkbox } from "../ui/checkbox"
 
 const ProductForm = ({
   type,
@@ -87,6 +87,8 @@ const ProductForm = ({
   }
 
   const images = form.watch("image")
+  const isFeatured = form.watch("isFeatured")
+  const banner = form.watch("banner")
 
   return (
     <Form {...form}>
@@ -284,7 +286,51 @@ const ProductForm = ({
             )}
           />
         </div>
-        <div className=" upload-field">{/* isFeatured */}</div>
+        <div className=" upload-field">
+          {/* isFeatured */}
+          Featured Product
+          <Card>
+            <CardContent className="space-y-2 mt-2">
+              <FormField
+                control={form.control}
+                name="isFeatured"
+                render={({ field }) => (
+                  <FormItem className="space-x-2 items-center">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel>Is Featured?</FormLabel>
+                  </FormItem>
+                )}
+              />
+              {isFeatured && banner && (
+                <Image
+                  src={banner}
+                  alt="banner image"
+                  width={1920}
+                  height={680}
+                  className="w-full object-center object-cover rounded-sm"
+                />
+              )}
+              {isFeatured && !banner && (
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res: { url: string }[]) => {
+                    form.setValue("banner", res[0].url)
+                  }}
+                  onUploadError={(error: Error) => {
+                    toast.error("Something went wrong!", {
+                      description: `ERROR! ${error.message}`,
+                    })
+                  }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
         <div>
           {" "}
           {/* Description */}
