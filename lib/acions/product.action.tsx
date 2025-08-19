@@ -2,10 +2,11 @@
 
 import { prisma } from "@/db/prisma"
 import { convertToPlainObject, formatError } from "../utils"
-import { PAGE_LIMIT, productDefaultValues } from "../constants"
+import { PAGE_LIMIT } from "../constants"
 import { revalidatePath } from "next/cache"
 import z from "zod"
 import { updateProductSchema, insertProductSchema } from "../validations"
+import { Prisma } from "../generated/prisma"
 
 export async function getLatestProduct() {
   const data = await prisma.product.findMany({
@@ -41,10 +42,22 @@ export async function getAllProducts({
   page: number
   limit?: number
   query: string
-  category: string
+  category?: string
 }) {
+  const queryFilter: Prisma.ProductWhereInput =
+    query && query !== "all"
+      ? {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          } as Prisma.StringFilter,
+        }
+      : {}
+
   const data = await prisma.product.findMany({
-    orderBy: { createdAt: "desc" },
+    where: {
+      ...queryFilter,
+    },
     skip: (page - 1) * limit,
     take: limit,
   })
