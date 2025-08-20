@@ -83,6 +83,7 @@ const AdminUsersPage = async (props: {
             ))}
           </TableBody>
         </Table>
+
         {users.totalPages > 1 && (
           <Pagination page={Number(page) || 1} totalPages={users?.totalPages} />
         )}
