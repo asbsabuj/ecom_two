@@ -70,7 +70,7 @@ const OrderDetailsTable = ({
           })
         }
       >
-        {isPending ? "Processing..." : "Marked As Paid"}
+        {isPending ? "Processing..." : "Mark As Paid "}
       </Button>
     )
   }
@@ -99,7 +99,7 @@ const OrderDetailsTable = ({
           })
         }
       >
-        {isPending ? "Processing..." : "Marked As Delivered"}
+        {isPending ? "Processing..." : "Mark As Delivered"}
       </Button>
     )
   }
@@ -130,7 +130,7 @@ const OrderDetailsTable = ({
                 {shippingAddress.street} {shippingAddress.city}
                 {shippingAddress.postalCode} {shippingAddress.country}
               </p>
-              {isPaid ? (
+              {isPaid && isDelivered ? (
                 <Badge variant="secondary">
                   Delivered at {formatDateTime(deliveredAt!).dateTime}
                 </Badge>
