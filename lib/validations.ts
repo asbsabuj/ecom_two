@@ -130,3 +130,18 @@ export const updateUserFromAdminSchema = updateUserFromProfileSchema.extend({
   id: z.string().min(1, "ID must have at least one character"),
   role: z.string().min(1, "User must have a role"),
 })
+
+//schema for inserting reviews
+export const insertReviewsSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters long"),
+  description: z
+    .string()
+    .min(3, "Description must be at least 3 characters long"),
+  productId: z.string().min(1, "There must be a product to review!"),
+  userId: z.string().min(1, "User is required"),
+  rating: z.coerce
+    .number()
+    .int()
+    .min(1, "Rating has to be at least 1")
+    .max(5, "Rating can be up to 5"),
+})
