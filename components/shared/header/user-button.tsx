@@ -44,10 +44,10 @@ const UserButton = async () => {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <div className="text-sm font-medium leading-none">
-                {session.user?.name}
+                {session?.user?.name}
               </div>
               <div className="text-sm text-muted-foreground leading-none">
-                {session.user?.email}
+                {session?.user?.email}
               </div>
             </div>
           </DropdownMenuLabel>
@@ -71,6 +71,7 @@ const UserButton = async () => {
           <DropdownMenuItem className="p-0 mb-1">
             <form action={signOutUser} className="w-full">
               <Button
+                type="submit"
                 className="w-full py-4 px-2 h-4 justify-start"
                 variant="ghost"
               >

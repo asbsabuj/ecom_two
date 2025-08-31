@@ -7,7 +7,6 @@ import { cookies } from "next/headers"
 import { authConfig } from "@/auth.config"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
@@ -53,6 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    ...authConfig,
     async session({ session, user, trigger, token }: any) {
       session.user.id = token.sub
       session.user.role = token.role

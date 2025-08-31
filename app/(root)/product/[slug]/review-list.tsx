@@ -13,7 +13,6 @@ const ReviewList = ({
   productId: string
   productSlug: string
 }) => {
-  console.log(userId, productId, productSlug)
   const [reviews, setReviews] = useState<Review[]>([])
 
   return (
@@ -26,8 +25,7 @@ const ReviewList = ({
           Please
           <Link
             className="text-blue-700 px-2"
-            href={`/sign-in?callbackUrl=/product/
-            ${productSlug}`}
+            href={`/sign-in?callbackUrl=/product/${productSlug}`}
           >
             Sign In
           </Link>
