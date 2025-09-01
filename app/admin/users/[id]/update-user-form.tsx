@@ -1,7 +1,7 @@
 "use client"
 
 import { updateUserFromAdminSchema } from "@/lib/validations"
-import z from "zod"
+import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, ControllerRenderProps } from "react-hook-form"
 import { toast } from "sonner"

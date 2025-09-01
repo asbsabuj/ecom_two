@@ -1,10 +1,11 @@
 "use client"
+
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useForm, ControllerRenderProps, SubmitHandler } from "react-hook-form"
 import { Product } from "@/types"
 import { updateProduct, createProduct } from "@/lib/acions/product.action"
-import z from "zod"
+import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { insertProductSchema, updateProductSchema } from "@/lib/validations"
 import {

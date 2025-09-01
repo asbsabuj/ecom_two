@@ -2,7 +2,6 @@ import { getAllCategories, getAllProducts } from "@/lib/acions/product.action"
 import ProductCard from "@/components/shared/products/product-card"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { title } from "process"
 
 const prices = [
   {

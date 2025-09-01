@@ -9,7 +9,6 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel"
 import AutoPlay from "embla-carousel-autoplay"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 

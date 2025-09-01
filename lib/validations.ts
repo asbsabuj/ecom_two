@@ -30,14 +30,14 @@ export const updateProductSchema = insertProductSchema.extend({
 })
 
 export const signInFormSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 })
 
 export const signUpFormSchema = z
   .object({
     name: z.string().min(2, "Name must have at least 2 characters"),
-    email: z.string().email("Invalid email address"),
+    email: z.email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z.string().min(6, "Confirm password."),
   })
@@ -139,9 +139,18 @@ export const insertReviewsSchema = z.object({
     .min(3, "Description must be at least 3 characters long"),
   productId: z.string().min(1, "There must be a product to review!"),
   userId: z.string().min(1, "User is required"),
-  rating: z.coerce
-    .number()
-    .int()
-    .min(1, "Rating has to be at least 1")
-    .max(5, "Rating can be up to 5"),
+  // rating: z.coerce
+  //   .number()
+  //   .int()
+  //   .min(1, "Rating has to be at least 1")
+  //   .max(5, "Rating can be up to 5"),
+  rating: z
+    .transform(Number)
+    .pipe(
+      z
+        .number()
+        .int()
+        .min(1, "Rating has to be at least 1")
+        .max(5, "Rating can be up to 5")
+    ),
 })

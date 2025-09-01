@@ -4,7 +4,7 @@ import { prisma } from "@/db/prisma"
 import { convertToPlainObject, formatError } from "../utils"
 import { PAGE_LIMIT } from "../constants"
 import { revalidatePath } from "next/cache"
-import z from "zod"
+import { z } from "zod"
 import { updateProductSchema, insertProductSchema } from "../validations"
 import { Prisma } from "../generated/prisma"
 
