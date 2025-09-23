@@ -65,3 +65,6 @@ export const defaultReviewFormValue = {
   description: "",
   rating: 0,
 }
+
+//default value for sender email
+export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev"

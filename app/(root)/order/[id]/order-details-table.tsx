@@ -28,7 +28,7 @@ const OrderDetailsTable = ({
   stripeClientSecret,
   isAdmin,
 }: {
-  order: Order
+  order: Omit<Order, "paymentResult">
   stripeClientSecret: string | null
   isAdmin: boolean
 }) => {

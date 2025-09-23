@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { getMyCart } from "./cart.action"
 import { getUserById } from "./user.action"
 import { isRedirectError } from "next/dist/client/components/redirect-error"
-import { CartItem, PaymentResult } from "@/types"
+import { CartItem, PaymentResult, ShippingAddress } from "@/types"
 import { prisma } from "@/db/prisma"
 import { formatError } from "../utils"
 import { insertOrderSchema } from "../validations"
@@ -12,6 +12,7 @@ import { convertToPlainObject } from "../utils"
 import { PAGE_LIMIT } from "../constants"
 import { Prisma } from "../generated/prisma"
 import { revalidatePath } from "next/cache"
+import { sendPurchaseReceipt } from "@/email"
 
 //create order and create order items
 export async function CreateOrder() {
@@ -158,6 +159,14 @@ export async function updateOrderToPaid({
     },
   })
   if (!updatedOrder) throw new Error("Order not found!")
+
+  sendPurchaseReceipt({
+    order: {
+      ...updatedOrder,
+      shippingAddress: updatedOrder.shippingAddress as ShippingAddress,
+      paymentResult: updatedOrder.paymentResult as PaymentResult,
+    },
+  })
 }
 
 //pagination action
